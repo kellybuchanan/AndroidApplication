@@ -125,4 +125,4 @@ public class MoreInfo extends AppCompatActivity {
         return true;
     } // end of onOptions
 
-} // end of class MoreInfoActivity
+} // end of class MoreInfo
