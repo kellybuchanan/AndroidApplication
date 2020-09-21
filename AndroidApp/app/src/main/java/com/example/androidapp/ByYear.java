@@ -14,24 +14,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.os.AsyncTask;
 
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.Toast;
+
+
+
 
 public class ByYear extends AppCompatActivity {
 
-    private Spinner yearSpinner;
-    private Button btnSubmit;
+    private String responseString1;
     private TextView mSearchResultsDisplay;
     private EditText mSearchTermEditText;
-    private Button mSubmitButton;
+    private Button mSearchButton;
+    private Button mResetButton;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.by_year);
 
@@ -40,45 +39,6 @@ public class ByYear extends AppCompatActivity {
         mSearchTermEditText     = (EditText) findViewById(R.id.et_search_box);
         mSearchButton           = (Button) findViewById(R.id.search_button);
         mResetButton            = (Button) findViewById(R.id.reset_button);
-
-
-        addListenerOnButton();
-        addListenerOnSpinnerItemSelection();
-    }
-
-
-    public void addListenerOnSpinnerItemSelection() {
-        yearSpinner = (Spinner) findViewById(R.id.years_spinner);
-        yearSpinner.setOnItemSelectedListener(new CustomOnItemSelectedListener());
-    }
-
-    // get the selected dropdown list value
-    public void addListenerOnButton() {
-
-        yearSpinner= (Spinner) findViewById(R.id.years_spinner);
-        btnSubmit = (Button) findViewById(R.id.btnSubmit);
-
-        btnSubmit.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                Toast.makeText(ByYear.this,
-                        "OnClickListener : " +
-                                "\nSpinner 1 : "+ String.valueOf(yearSpinner.getSelectedItem()) +
-                        Toast.LENGTH_SHORT).show();
-            }
-
-        });
-    }
-
-
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
         // make network call
         makeNetworkSearchQuery();
@@ -103,14 +63,23 @@ public class ByYear extends AppCompatActivity {
                         String searchText = mSearchTermEditText.getText().toString();
 
                         // get text from mSearchResultsDisplayText
-                        String countries = mSearchResultsDisplay.getText().toString();
+                        String years = mSearchResultsDisplay.getText().toString();
                         // convert to a list
-                        String[] countriesList = countries.split("\n");
+                        String[] yearsList = years.split("\n");
 
                         // search in that list to check if search string matches
-                        for(String name : countriesList){
-                            if(name.toLowerCase().equals(searchText.toLowerCase())){
-                                mSearchResultsDisplay.setText(name);
+                        for(String year : yearsList){
+                            if(year.toLowerCase().equals(searchText.toLowerCase())){
+                                mSearchResultsDisplay.setText(year + "\n\n");
+                                ArrayList<String> dateInfo =  NetworkUtils.parseByDatesJSON(responseString1, year);
+                                Log.d("DATA", String.valueOf(dateInfo));
+                                String data = "";
+                                for(int i = 0; i < dateInfo.size() ; i++) {
+                                    data = dateInfo.get(i);
+                                    Log.d("DATA", data + " " + i + "\n");
+                                    mSearchResultsDisplay.append(data + "\n\n");
+                                }
+
                                 break;
                             }else{
                                 mSearchResultsDisplay.setText("No results match.");
@@ -129,7 +98,7 @@ public class ByYear extends AppCompatActivity {
         String searchTerm = mSearchTermEditText.getText().toString();
 
         // reset search results
-        mSearchResultsDisplay.setText("NYC Boroughs: \n");
+        mSearchResultsDisplay.setText("Years: \n");
 
         // make the search
         new FetchNetworkData().execute(searchTerm);
@@ -159,6 +128,7 @@ public class ByYear extends AppCompatActivity {
             }
 
             // return response
+            responseString1 = responseString;
             return responseString;
 
         } // end of doinBackground
@@ -166,10 +136,10 @@ public class ByYear extends AppCompatActivity {
         @Override
         protected void onPostExecute(String responseData) {
             super.onPostExecute(responseData);
-            ArrayList<String> boroughs = NetworkUtils.parseBoroughsJSON(responseData); //
+            ArrayList<String> years = NetworkUtils.parseDatesJSON(responseData); //
             // display entries in GUI
-            for(String b: boroughs){
-                mSearchResultsDisplay.append("\n\n" + b);
+            for(String y: years){
+                mSearchResultsDisplay.append("\n\n" + y);
             }
 
 
@@ -189,33 +159,27 @@ public class ByYear extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         int menuItemSelected = item.getItemId();
 
-        if(menuItemSelected == R.id.menu_about){ // id from main_menu.xml for the About item
+        if(menuItemSelected == R.id.menu_boro){ // id from main_menu.xml for the About item
 
 
             //spl - launching activity in our app - then launch the About Activity
-            Class destinationActivity = ByYear.class;
+            Class destinationActivity = MainActivity.class;
 
             // create intent to go to next page
-            Intent startAboutActivityIntent = new Intent(MainActivity.this, destinationActivity);
-
-            String msg = mSearchTermEditText.getText().toString();
-            startAboutActivityIntent.putExtra(Intent.EXTRA_TEXT, msg);
+            Intent startAboutActivityIntent = new Intent(ByYear.this, destinationActivity);
 
             startActivity(startAboutActivityIntent);
-            Log.d("info", "MoreInfo launched");
+            Log.d("info", "ByYear launched");
         } else if (menuItemSelected == R.id.menu_resources) {
 
             //spl - launching activity in our app - then launch the Resource Activity
             Class destinationActivity = MoreInfo.class;
 
             // create intent to go to next page
-            Intent startAboutActivityIntent = new Intent(MainActivity.this, destinationActivity);
-
-            String msg = mSearchTermEditText.getText().toString();
-            startAboutActivityIntent.putExtra(Intent.EXTRA_TEXT, msg);
+            Intent startAboutActivityIntent = new Intent(ByYear.this, destinationActivity);
 
             startActivity(startAboutActivityIntent);
-            Log.d("info", "ByYear Activity launched");
+            Log.d("info", "MoreInfo Activity launched");
 
         } // end of menu options
         return true;

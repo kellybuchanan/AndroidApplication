@@ -5,6 +5,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -38,7 +40,7 @@ public class MoreInfo extends AppCompatActivity {
             mDisplayAboutTextView.append("\n\n" + message);
         }
 
-        final String urlString = "https://www.nd.edu/"; // url string
+        final String urlString = "https://data.cityofnewyork.us/City-Government/New-York-City-Population-by-Borough-1950-2040/xywu-7bv9"; // url string
 
         // open webpage button
         mOpenWebpageButton.setOnClickListener(
@@ -85,5 +87,42 @@ public class MoreInfo extends AppCompatActivity {
 
         startActivity(openWebPageIntent);
     } // end of open web page
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.main_menu, menu); // id of the menu resource that should be inflated
+        return true;
+    } // end of onCreateOptionsMenu
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        int menuItemSelected = item.getItemId();
+
+        if(menuItemSelected == R.id.menu_boro){ // id from main_menu.xml for the About item
+
+
+            //spl - launching activity in our app - then launch the About Activity
+            Class destinationActivity = MainActivity.class;
+
+            // create intent to go to next page
+            Intent startAboutActivityIntent = new Intent(MoreInfo.this, destinationActivity);
+
+            startActivity(startAboutActivityIntent);
+            Log.d("info", "ByYear launched");
+        } else if (menuItemSelected == R.id.menu_about) {
+
+            //spl - launching activity in our app - then launch the Resource Activity
+            Class destinationActivity = ByYear.class;
+
+            // create intent to go to next page
+            Intent startAboutActivityIntent = new Intent(MoreInfo.this, destinationActivity);
+
+            startActivity(startAboutActivityIntent);
+            Log.d("info", "MoreInfo Activity launched");
+
+        } // end of menu options
+        return true;
+    } // end of onOptions
 
 } // end of class MoreInfoActivity

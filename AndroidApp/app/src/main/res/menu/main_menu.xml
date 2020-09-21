@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/menu_boro"
+        android:title="Boroughs"
+        android:orderInCategory="1"
+        app:showAsAction="ifRoom"
+        />
+
+    <item
         android:id="@+id/menu_about"
         android:title="Years"
         android:orderInCategory="1"

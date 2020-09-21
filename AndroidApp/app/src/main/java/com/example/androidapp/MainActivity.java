@@ -22,6 +22,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    private String responseString1;
     private TextView mSearchResultsDisplay;
     private EditText mSearchTermEditText;
     private Button mSearchButton;
@@ -61,14 +62,19 @@ public class MainActivity extends AppCompatActivity {
                         String searchText = mSearchTermEditText.getText().toString();
 
                         // get text from mSearchResultsDisplayText
-                        String countries = mSearchResultsDisplay.getText().toString();
+                        String boroughs = mSearchResultsDisplay.getText().toString();
                         // convert to a list
-                        String[] countriesList = countries.split("\n");
-
+                        String[] bList = boroughs.split("\n");
                         // search in that list to check if search string matches
-                        for(String name : countriesList){
-                            if(name.toLowerCase().equals(searchText.toLowerCase())){
-                                mSearchResultsDisplay.setText(name);
+                        for(String borough : bList){
+                            if(borough.replaceAll("\\s+","").toLowerCase().equals(searchText.replaceAll("\\s+","").toLowerCase())){
+                                mSearchResultsDisplay.setText(borough + "\n\n");
+                                ArrayList<String> nowInfo =  NetworkUtils.getByYear(responseString1, borough);
+                                String data = "";
+                                for(int i = 0; i < nowInfo.size() ; i++) {
+                                    data = nowInfo.get(i);
+                                    mSearchResultsDisplay.append(data + "\n\n");
+                                }
                                 break;
                             }else{
                                 mSearchResultsDisplay.setText("No results match.");
@@ -116,6 +122,8 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
+            // set class property response string
+            responseString1 = responseString;
             // return response
             return responseString;
 
@@ -156,26 +164,20 @@ public class MainActivity extends AppCompatActivity {
             // create intent to go to next page
             Intent startAboutActivityIntent = new Intent(MainActivity.this, destinationActivity);
 
-            String msg = mSearchTermEditText.getText().toString();
-            startAboutActivityIntent.putExtra(Intent.EXTRA_TEXT, msg);
-
             startActivity(startAboutActivityIntent);
-            Log.d("info", "MoreInfo launched");
+            Log.d("info", "ByYear launched");
         } else if (menuItemSelected == R.id.menu_resources) {
 
-        //spl - launching activity in our app - then launch the Resource Activity
-        Class destinationActivity = MoreInfo.class;
+            //spl - launching activity in our app - then launch the Resource Activity
+            Class destinationActivity = MoreInfo.class;
 
-        // create intent to go to next page
-        Intent startAboutActivityIntent = new Intent(MainActivity.this, destinationActivity);
+            // create intent to go to next page
+            Intent startAboutActivityIntent = new Intent(MainActivity.this, destinationActivity);
 
-        String msg = mSearchTermEditText.getText().toString();
-        startAboutActivityIntent.putExtra(Intent.EXTRA_TEXT, msg);
+            startActivity(startAboutActivityIntent);
+            Log.d("info", "MoreInfo Activity launched");
 
-        startActivity(startAboutActivityIntent);
-        Log.d("info", "ByYear Activity launched");
-
-    } // end of menu options
+        } // end of menu options
         return true;
     } // end of onOptions
 

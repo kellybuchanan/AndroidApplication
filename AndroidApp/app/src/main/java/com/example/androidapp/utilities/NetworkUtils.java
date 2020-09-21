@@ -1,5 +1,7 @@
 package com.example.androidapp.utilities;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,8 +51,8 @@ public class NetworkUtils {
     public static ArrayList<String> parseBoroughsJSON(String popResponseString){
         ArrayList<String> popList = new ArrayList<String>();
         try{
-            JSONObject allPopulationObject = new JSONObject(popResponseString);
-            JSONArray allPopulationArray = allPopulationObject.getJSONArray("results");
+            //JSONObject allPopulationObject = new JSONObject(popResponseString);
+            JSONArray allPopulationArray = new JSONArray(popResponseString);
 
             for(int i = 0; i < allPopulationArray.length(); i++){
                 JSONObject childJson = allPopulationArray.getJSONObject(i);
@@ -66,13 +68,37 @@ public class NetworkUtils {
         return popList;
     } // end of parse
 
+    // Parse JSON to get a list of Boroughs
+    public static ArrayList<String> parseDatesJSON(String popResponseString){
+        ArrayList<String> popList = new ArrayList<String>();
+        try{
+            //JSONObject allPopulationObject = new JSONObject(popResponseString);
+            JSONArray allPopulationArray = new JSONArray(popResponseString);
+            JSONObject childJson = allPopulationArray.getJSONObject(1);
+
+            for (int j = 0; j < 10; j++) {
+                String year = Integer.toString(1950 + (j * 10));
+                // check if it has name
+                if (childJson.has("_" + year)) {
+                    String borough = childJson.getString("_" + year);
+                    Log.d("YEAR", borough);
+                    if (borough != null) popList.add(year);
+                }
+            } // end for date
+
+        } catch(JSONException e){
+            e.printStackTrace();
+        }
+        return popList;
+    } // end of parse
 
     // Parse JSON to get list of populations by a year
     public static ArrayList<String> parseByDatesJSON(String popResponseString, String year){
         ArrayList<String> popByDate = new ArrayList<String>();
         try{
-            JSONObject allPopulationObject = new JSONObject(popResponseString);
-            JSONArray allPopulationArray = allPopulationObject.getJSONArray("results");
+            //JSONObject allPopulationObject = new JSONObject(popResponseString);
+            JSONArray allPopulationArray = new JSONArray(popResponseString);
+
             for(int i = 0; i < allPopulationArray.length(); i++){
                 JSONObject childJson = allPopulationArray.getJSONObject(i);
                 // check if it has name
@@ -88,6 +114,33 @@ public class NetworkUtils {
         }
         return popByDate;
     } // end of parse
+
+    // Parse JSON to get list of populations by a year
+    public static ArrayList<String> getByYear(String popResponseString, String borough){
+        ArrayList<String> popByBorough = new ArrayList<String>();
+        try{
+            //JSONObject allPopulationObject = new JSONObject(popResponseString);
+            JSONArray allPopulationArray = new JSONArray(popResponseString);
+
+            for(int i = 0; i < allPopulationArray.length(); i++){
+                JSONObject childJson = allPopulationArray.getJSONObject(i);
+
+                if(childJson.has("borough")) {
+                    if (childJson.has("_2020") && (childJson.getString("borough").toLowerCase().equals(borough.toLowerCase()))) {
+                        String pop = childJson.getString("_2020");
+                        String percent = childJson.getString("_2020_boro_share_of_nyc_total");
+                        Log.d("YEAR", pop);
+                        if (pop != null) popByBorough.add(pop + " people (" + percent + "%)");
+                    }
+                }
+            } // end for
+        } catch(JSONException e){
+            e.printStackTrace();
+        }
+        return popByBorough;
+    } // end of parse
+
+
 
 
 }
